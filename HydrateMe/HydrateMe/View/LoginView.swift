@@ -20,50 +20,85 @@ struct LoginView: View {
     
     
     var body: some View {
-        VStack(alignment: .center){
-            Text("HydrateMe")
-//                .font(.system(size: 70, weight: .bold, design: Font.Design?))
-                //.f
-            
-            TextField("Email", text: $email)
-                .onChange(of: email) { newValue in
-                    isEmailValid = isValidEmail(newValue)
-                    errorMsg = isEmailValid ? "" : "Please enter a valid email address."
-                    alert = !isEmailValid
-                }
-                //CSS
-            TextField("Password", text: $password)
-                .onChange(of: password) { newValue in
-                    isPasswordValid = isValidPassword(newValue)
-                    //errorMsg = getPasswordValidationError(newValue)
-                    alert = !isPasswordValid
-                }
-                //CSS
-            
-            Button(action: {
-                if !email.isEmpty && !password.isEmpty && !isPasswordValid && !isEmailValid {
-                    FirebaseModel.shared.signIn(email: email, password: password) { result in
-                        switch result {
-                        case .success(let user):
-                            print("User signed in: \(user.email ?? "")")
-                        case .failure(let error):
-                            errorMsg = error.localizedDescription
-                        }
+        NavigationView {
+            ZStack {
+
+                Image("underwater")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                
+                VStack(alignment: .center){
+                    Text("Hydrate Me")
+        //                .font(.system(size: 70, weight: .bold, design: Font.Design?))
+                        //.f
+                    HStack {
+                        Text("Powered by")
+                        //CSS
+                        Text("H2O")
+                            .bold()
+                            .foregroundColor()
+                        //CSS
                     }
-                } else {
-                    errorMsg = "Please enter both email and password"
+    
+                    
+                    VStack {
+
+                        Text("Login")
+                        //CSS
+                        
+                        TextField("Email", text: $email)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+                            .onChange(of: email) { newValue in
+                                isEmailValid = isValidEmail(newValue)
+                                errorMsg = isEmailValid ? "" : "Please enter a valid email address."
+                                alert = !isEmailValid
+                            }
+                            //CSS
+                        SecureField("Password", text: $password)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+                            .onChange(of: password) { newValue in
+                                isPasswordValid = isValidPassword(newValue)
+                                //errorMsg = getPasswordValidationError(newValue)
+                                alert = !isPasswordValid
+                            }
+                            //CSS
+                        
+                        Button(action: {
+                            if isPasswordValid && isEmailValid {
+                                FirebaseModel.shared.signIn(email: email, password: password) { result in
+                                    switch result {
+                                    case .success(let user):
+                                        print("User signed in: \(user.email ?? "")")
+                                    case .failure(let error):
+                                        errorMsg = error.localizedDescription
+                                    }
+                                }
+                            } else {
+                                errorMsg = "Please enter both email and password"
+                            }
+                        }) {
+                            Image("")// Use the image path which
+                            //CSS
+                        }
+            
+                        HStack {
+                                Text("Don't have an account?")
+                                //CSS
+                                NavigationLink("Sign up", destination: SignUpView())
+                                //CSS
+                        }
+                        .padding()
+                    }
+                    .padding()
+                    .background(RoundedRectangle(corner Radius: 20).fill(Color.blue.opacity(0.9)))
+                    .padding()
                 }
-            }) {
-                Text("Sign In")
-                //CSS
             }
         }
-        .background(
-            Image("underwater")
-                .resizable()
-                .edgesIgnoringSafeArea(.all)
-                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        )
     }
     
     private func isValidEmail(_ email: String) -> Bool {
